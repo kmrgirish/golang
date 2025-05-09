@@ -836,6 +836,7 @@ func schedinit() {
 	mallocinit()
 	godebug := getGodebugEarly()
 	cpuinit(godebug) // must run before alginit
+	goenvs()         // to access environment variables
 	randinit()       // must run before alginit, mcommoninit
 	alginit()        // maps, hash, rand must not be used before this call
 	mcommoninit(gp.m, -1)
@@ -6732,7 +6733,11 @@ func runqempty(pp *p) bool {
 // With the randomness here, as long as the tests pass
 // consistently with -race, they shouldn't have latent scheduling
 // assumptions.
-const randomizeScheduler = raceenabled
+//
+// for deterministic simulation testing we want the scheduler to
+// always randmizing scheudling according to the initial seed
+// this helps us uncover new execution paths
+const randomizeScheduler = true
 
 // runqput tries to put g on the local runnable queue.
 // If next is false, runqput adds g to the tail of the runnable queue.
